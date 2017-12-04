@@ -5,15 +5,23 @@ using UnityEngine.Timeline;
 [System.Serializable]
 class ParticleSystemControlMixer : PlayableBehaviour
 {
-    #region Private state
+    #region Private variables and methods
 
     ParticleSystem[] _targetCache;
-    float _lastUpdateTime;
+
+    const float kMinDeltaTime = 1.0f / 120;
+    const float kMaxDeltaTime = 1.0f / 15;
+
+    float GetEffectTime(Playable playable)
+    {
+        var inputCount = playable.GetInputCount();
+        for (var i = 0; i < inputCount; i++)
+            if (playable.GetInputWeight(i) > 0)
+                return (float)playable.GetInput(i).GetTime();
+        return -1;
+    }
 
     #endregion
-
-    const float kDefaultDeltaTime = 1.0f / 60;
-    const float kMaxDeltaTime = 1.0f / 15;
 
     #region PlayableBehaviour overrides
 
@@ -34,32 +42,45 @@ class ParticleSystemControlMixer : PlayableBehaviour
 
         // Update the cache that contains the target renderer list.
         if (_targetCache == null || _targetCache.Length == 0)
+        {
             _targetCache = root.GetComponentsInChildren<ParticleSystem>();
+        }
+
+        // Is it in edit mode?
+        var editMode = !Application.isPlaying;
 
         foreach (var ps in _targetCache)
         {
-            if (time < ps.time || time - ps.time > kMaxDeltaTime)
+            if (time < ps.time)
             {
-                ps.time = time;
-            }
-            else
-            {
-                if (!Application.isPlaying && time - ps.time >= kDefaultDeltaTime/2)
+                // Backward seek happened.
+                if (editMode)
                 {
-                    ps.Simulate(time - ps.time, true, false, false);
+                    // Edit mode: Just modify the effect time.
+                    ps.time = time;
                 }
+                else
+                {
+                    // Play mode: Reset and fast-forward.
+                    ps.Simulate(time);
+                    ps.Play();
+                }
+            }
+            else if (time - ps.time > kMaxDeltaTime)
+            {
+                // Fast-forward seek happened.
+                // Simulate without restarting but with fixed step.
+                ps.Simulate(time - ps.time, true, false, true);
+                if (!editMode) ps.Play();
+            }
+            else if (editMode && time - ps.time >= kMinDeltaTime)
+            {
+                // Edit mode playback.
+                // Simulate without restarting nor fixed step.
+                ps.Simulate(time - ps.time, true, false, false);
             }
         }
     }
 
     #endregion
-
-    float GetEffectTime(Playable playable)
-    {
-        var inputCount = playable.GetInputCount();
-        for (var i = 0; i < inputCount; i++)
-            if (playable.GetInputWeight(i) > 0)
-                return (float)playable.GetInput(i).GetTime();
-        return -1;
-    }
 }
