@@ -9,9 +9,6 @@ class ParticleSystemControlMixer : PlayableBehaviour
 
     ParticleSystem[] _targetCache;
 
-    const float kMinDeltaTime = 1.0f / 120;
-    const float kMaxDeltaTime = 1.0f / 15;
-
     float GetEffectTime(Playable playable)
     {
         var inputCount = playable.GetInputCount();
@@ -49,31 +46,30 @@ class ParticleSystemControlMixer : PlayableBehaviour
         // Is it in edit mode?
         var editMode = !Application.isPlaying;
 
+        // Auto-calculate the target frame rate.
+        var sdt = Time.smoothDeltaTime;
+        if (editMode || sdt < 1.0f / 200) sdt = 1.0f / 60;
+        var minDeltaTime = sdt / 2;
+        var maxDeltaTime = sdt * 6;
+
         foreach (var ps in _targetCache)
         {
-            if (time < ps.time)
+            if (time < ps.time - minDeltaTime)
             {
-                // Backward seek happened.
-                if (editMode)
-                {
-                    // Edit mode: Just modify the effect time.
-                    ps.time = time;
-                }
-                else
-                {
-                    // Play mode: Reset and fast-forward.
-                    ps.Simulate(time);
-                    ps.Play();
-                }
+                // Backward seek: Use the seek-with-restart method.
+                ps.Simulate(time);
+
+                // In play mode, we have to call Play after Simulate.
+                if (!editMode) ps.Play();
             }
-            else if (time - ps.time > kMaxDeltaTime)
+            else if (time - ps.time > maxDeltaTime)
             {
                 // Fast-forward seek happened.
                 // Simulate without restarting but with fixed step.
                 ps.Simulate(time - ps.time, true, false, true);
                 if (!editMode) ps.Play();
             }
-            else if (editMode && time - ps.time >= kMinDeltaTime)
+            else if (editMode && time - ps.time >= minDeltaTime)
             {
                 // Edit mode playback.
                 // Simulate without restarting nor fixed step.
