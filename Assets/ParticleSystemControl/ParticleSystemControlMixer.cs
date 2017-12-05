@@ -3,11 +3,14 @@ using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
 [System.Serializable]
-class ParticleSystemControlMixer : PlayableBehaviour
+public class ParticleSystemControlMixer : PlayableBehaviour
 {
+    public bool checkDeterminism = true;
+
     #region Private variables and methods
 
     ParticleSystem[] _targetCache;
+    bool _warned;
 
     float GetEffectTime(Playable playable)
     {
@@ -16,6 +19,28 @@ class ParticleSystemControlMixer : PlayableBehaviour
             if (playable.GetInputWeight(i) > 0)
                 return (float)playable.GetInput(i).GetTime();
         return -1;
+    }
+
+    void CheckDeterminism(ParticleSystem ps)
+    {
+        if (ps.useAutoRandomSeed)
+            Debug.LogWarning(
+                "Auto random seed is enabled in " +
+                "'" + GetTransformFullPath(ps.transform) + "'. " +
+                "Turn it off to get deterministic behavior in the timeline.");
+    }
+
+    string GetTransformFullPath(Transform tr)
+    {
+        var path = tr.name;
+
+        while (tr.parent != null)
+        {
+            tr = tr.parent;
+            path = tr.name + "/" + path;
+        }
+
+        return path;
     }
 
     #endregion
@@ -39,9 +64,10 @@ class ParticleSystemControlMixer : PlayableBehaviour
 
         // Update the cache that contains the target renderer list.
         if (_targetCache == null || _targetCache.Length == 0)
-        {
             _targetCache = root.GetComponentsInChildren<ParticleSystem>();
-        }
+
+        // Do nothing if there is no particle system under the target.
+        if (_targetCache.Length == 0) return;
 
         // Is it in edit mode?
         var editMode = !Application.isPlaying;
@@ -75,7 +101,12 @@ class ParticleSystemControlMixer : PlayableBehaviour
                 // Simulate without restarting nor fixed step.
                 ps.Simulate(time - ps.time, true, false, false);
             }
+
+            if (!_warned && checkDeterminism) CheckDeterminism(ps);
         }
+
+        // Suppress further warning.
+        _warned = true;
     }
 
     #endregion
