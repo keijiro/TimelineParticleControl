@@ -5,18 +5,30 @@ using UnityEngine.Playables;
 [CustomEditor(typeof(ParticleSystemControl)), CanEditMultipleObjects]
 class ParticleSystemControlEditor : Editor
 {
-//    SerializedProperty _mode;
+    SerializedProperty _rateOverTime;
+    SerializedProperty _rateOverDistance;
+
+    static class Styles 
+    {
+        public static readonly GUIContent time = new GUIContent("Over Time");
+        public static readonly GUIContent distance = new GUIContent("Over Distance");
+    }
 
     void OnEnable()
     {
-//        _mode = serializedObject.FindProperty("template.mode");
+        _rateOverTime = serializedObject.FindProperty("template.rateOverTime");
+        _rateOverDistance = serializedObject.FindProperty("template.rateOverDistance");
     }
 
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
 
-//        EditorGUILayout.PropertyField(_mode);
+        EditorGUILayout.LabelField("Particle Emission Rates");
+        EditorGUI.indentLevel++;
+        EditorGUILayout.PropertyField(_rateOverTime, Styles.time);
+        EditorGUILayout.PropertyField(_rateOverDistance, Styles.distance);
+        EditorGUI.indentLevel--;
 
         serializedObject.ApplyModifiedProperties();
     }

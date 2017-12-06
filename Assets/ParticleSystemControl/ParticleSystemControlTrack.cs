@@ -2,9 +2,9 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
-[TrackColor(0.4f, 0.4f, 0.4f)]
+[TrackColor(0.4f, 0.7f, 0.6f)]
 [TrackClipType(typeof(ParticleSystemControl))]
-[TrackBindingType(typeof(Transform))]
+[TrackBindingType(typeof(ParticleSystem))]
 public class ParticleSystemControlTrack : TrackAsset
 {
     public ParticleSystemControlMixer template = new ParticleSystemControlMixer();
@@ -12,5 +12,14 @@ public class ParticleSystemControlTrack : TrackAsset
     public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
     {
         return ScriptPlayable<ParticleSystemControlMixer>.Create(graph, template, inputCount);
+    }
+
+    public override void GatherProperties(PlayableDirector director, IPropertyCollector driver)
+    {
+        var ps = director.GetGenericBinding(this) as ParticleSystem;
+        if (ps == null) return;
+
+        driver.AddFromName<ParticleSystem>(ps.gameObject, "EmissionModule.rateOverTime.scalar");
+        driver.AddFromName<ParticleSystem>(ps.gameObject, "EmissionModule.rateOverDistance.scalar");
     }
 }

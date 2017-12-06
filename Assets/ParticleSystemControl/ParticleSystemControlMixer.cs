@@ -5,32 +5,18 @@ using UnityEngine.Timeline;
 [System.Serializable]
 public class ParticleSystemControlMixer : PlayableBehaviour
 {
+    #region Editable properties
+
     public bool checkDeterminism = true;
+
+    #endregion
 
     #region Private variables and methods
 
-    ParticleSystem[] _targetCache;
+    bool _needRestart;
     bool _warned;
 
-    float GetEffectTime(Playable playable)
-    {
-        var inputCount = playable.GetInputCount();
-        for (var i = 0; i < inputCount; i++)
-            if (playable.GetInputWeight(i) > 0)
-                return (float)playable.GetInput(i).GetTime();
-        return -1;
-    }
-
-    void CheckDeterminism(ParticleSystem ps)
-    {
-        if (ps.useAutoRandomSeed)
-            Debug.LogWarning(
-                "Auto random seed is enabled in " +
-                "'" + GetTransformFullPath(ps.transform) + "'. " +
-                "Turn it off to get deterministic behavior in the timeline.");
-    }
-
-    string GetTransformFullPath(Transform tr)
+    static string GetTransformFullPath(Transform tr)
     {
         var path = tr.name;
 
@@ -43,70 +29,127 @@ public class ParticleSystemControlMixer : PlayableBehaviour
         return path;
     }
 
+    void CheckDeterminism(ParticleSystem ps)
+    {
+        if (!_warned && ps.useAutoRandomSeed)
+        {
+            Debug.LogWarning(
+                "Auto random seed is enabled in " +
+                "'" + GetTransformFullPath(ps.transform) + "'. " +
+                "Turn it off to get deterministic behavior in the timeline.");
+            _warned = true;
+        }
+    }
+
+    static void ResetParticleSystem(ParticleSystem ps, float time)
+    {
+        const float maxSimTime = 2.0f / 3;
+
+        if (time < maxSimTime)
+        {
+            // The target time is small enough: Use the default simulation
+            // function (restart and simulate for the given time).
+            ps.Simulate(time);
+        }
+        else
+        {
+            // The target time is larger than the threshold: The default
+            // simulation can be heavy in this case, so use fast-forward
+            // (simulation with just a single step) then simulate for a small
+            // period of time.
+            ps.Simulate(time - maxSimTime, true, true, false);
+            ps.Simulate(maxSimTime, true, false, true);
+        }
+    }
+
     #endregion
 
     #region PlayableBehaviour overrides
 
-    public override void OnGraphStart(Playable playable)
-    {
-        _targetCache = null;
-    }
-
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
     {
-        // Retrieve the target root transform from the track-given data.
-        var root = playerData as Transform;
-        if (root == null) return;
+        var ps = playerData as ParticleSystem;
+        if (ps == null) return;
 
-        // Scan the track to determine the current effect time.
-        var time = GetEffectTime(playable);
-        if (time < 0) return;
+        // Validate the settings.
+        CheckDeterminism(ps);
 
-        // Update the cache that contains the target renderer list.
-        if (_targetCache == null || _targetCache.Length == 0)
-            _targetCache = root.GetComponentsInChildren<ParticleSystem>();
-
-        // Do nothing if there is no particle system under the target.
-        if (_targetCache.Length == 0) return;
-
-        // Is it in edit mode?
-        var editMode = !Application.isPlaying;
-
-        // Auto-calculate the target frame rate.
-        var sdt = Time.smoothDeltaTime;
-        if (editMode || sdt < 1.0f / 200) sdt = 1.0f / 60;
-        var minDeltaTime = sdt / 2;
-        var maxDeltaTime = sdt * 6;
-
-        foreach (var ps in _targetCache)
+        // Do nothing if the game object is not active. Will do full restart
+        // when activated next time.
+        if (!ps.gameObject.activeInHierarchy)
         {
-            if (time < ps.time - minDeltaTime)
-            {
-                // Backward seek: Use the seek-with-restart method.
-                ps.Simulate(time);
+            _needRestart = true;
+            return;
+        }
 
-                // In play mode, we have to call Play after Simulate.
-                if (!editMode) ps.Play();
-            }
-            else if (time - ps.time > maxDeltaTime)
+        // We use the root node time because the track playable/mixer playable
+        // only gives time = 0.
+        var time = (float)playable.GetGraph().GetRootPlayable(0).GetTime();
+
+        // Emission rates control
+
+        var totalOverTime = 0.0f;
+        var totalOverDist = 0.0f;
+
+        var clipCount = playable.GetInputCount();
+        for (var i = 0; i < clipCount; i++)
+        {
+            var clip = ((ScriptPlayable<ParticleSystemControlPlayable>)playable.GetInput(i)).GetBehaviour();
+            var w = playable.GetInputWeight(i);
+            totalOverTime += clip.rateOverTime * w;
+            totalOverDist += clip.rateOverDistance * w;
+        }
+
+        var em = ps.emission;
+        em.rateOverTimeMultiplier = totalOverTime;
+        em.rateOverDistanceMultiplier = totalOverDist;
+
+        // Time control
+
+        if (Application.isPlaying)
+        {
+            // Play mode time control: Only resets the simulation when a large
+            // gap between the particle time and the playhead was found.
+            var maxDelta = Mathf.Max(1.0f / 30, Time.smoothDeltaTime * 2);
+            if (Mathf.Abs(time - ps.time) > maxDelta)
             {
-                // Fast-forward seek happened.
-                // Simulate without restarting but with fixed step.
+                ResetParticleSystem(ps, time);
+                ps.Play();
+            }
+        }
+        else
+        {
+            // Do full restart on activation.
+            if (_needRestart)
+            {
+                ps.Play();
+                _needRestart = false;
+            }
+
+            // Edit mode time control
+            var minDelta = 1.0f / 240;
+            var smallDelta = Mathf.Max(0.1f, Time.fixedDeltaTime * 2);
+            var largeDelta = 0.2f;
+
+            if (time < ps.time || time > ps.time + largeDelta)
+            {
+                // Backward seek or big leap
+                // Reset the simulation with the current playhead position.
+                ResetParticleSystem(ps, time);
+            }
+            else if (time > ps.time + smallDelta)
+            {
+                // Fast-forward seek
+                // Simulate without restarting but with fixed steps.
                 ps.Simulate(time - ps.time, true, false, true);
-                if (!editMode) ps.Play();
             }
-            else if (editMode && time - ps.time >= minDeltaTime)
+            else if (time > ps.time + minDelta)
             {
-                // Edit mode playback.
+                // Edit mode playback
                 // Simulate without restarting nor fixed step.
                 ps.Simulate(time - ps.time, true, false, false);
             }
-
-            if (!_warned && checkDeterminism) CheckDeterminism(ps);
         }
-
-        // Suppress further warning.
-        _warned = true;
     }
 
     #endregion

@@ -7,7 +7,7 @@ public class ParticleSystemControl : PlayableAsset, ITimelineClipAsset
 {
     public ParticleSystemControlPlayable template = new ParticleSystemControlPlayable();
 
-    public ClipCaps clipCaps { get { return ClipCaps.ClipIn; } }
+    public ClipCaps clipCaps { get { return ClipCaps.Blending; } }
 
     public override Playable CreatePlayable(PlayableGraph graph, GameObject go)
     {
