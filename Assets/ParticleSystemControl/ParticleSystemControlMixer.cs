@@ -1,6 +1,11 @@
+// Timeline Particle Control Example
+// https://github.com/keijiro/TimelineParticleControl
+
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
+
+// Playable track class for particle system control
 
 [System.Serializable]
 public class ParticleSystemControlMixer : PlayableBehaviour
@@ -69,21 +74,23 @@ public class ParticleSystemControlMixer : PlayableBehaviour
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
     {
         var ps = playerData as ParticleSystem;
+
+        // Do nothing if there is norhing bound.
         if (ps == null) return;
 
         // Validate the settings.
         CheckDeterminism(ps);
 
-        // Do nothing if the game object is not active. Will do full restart
-        // when activated next time.
+        // Do nothing if the target game object is not active.
+        // Will do full restart when being activated next time.
         if (!ps.gameObject.activeInHierarchy)
         {
             _needRestart = true;
             return;
         }
 
-        // We use the root node time because the track playable/mixer playable
-        // only gives time = 0.
+        // Track time: Has to retrieve the root node time (the playhead of the
+        // timeline) because the track/mixer playable only returns time = 0.
         var time = (float)playable.GetGraph().GetRootPlayable(0).GetTime();
 
         // Emission rates control
@@ -109,8 +116,9 @@ public class ParticleSystemControlMixer : PlayableBehaviour
         if (Application.isPlaying)
         {
             // Play mode time control: Only resets the simulation when a large
-            // gap between the particle time and the playhead was found.
+            // gap between the time variables was found.
             var maxDelta = Mathf.Max(1.0f / 30, Time.smoothDeltaTime * 2);
+
             if (Mathf.Abs(time - ps.time) > maxDelta)
             {
                 ResetParticleSystem(ps, time);
@@ -119,17 +127,17 @@ public class ParticleSystemControlMixer : PlayableBehaviour
         }
         else
         {
-            // Do full restart on activation.
+            // Edit mode time control
+            var minDelta = 1.0f / 240;
+            var smallDelta = Mathf.Max(0.1f, Time.fixedDeltaTime * 2);
+            var largeDelta = 0.2f;
+
+            // Do full restart on reactivation.
             if (_needRestart)
             {
                 ps.Play();
                 _needRestart = false;
             }
-
-            // Edit mode time control
-            var minDelta = 1.0f / 240;
-            var smallDelta = Mathf.Max(0.1f, Time.fixedDeltaTime * 2);
-            var largeDelta = 0.2f;
 
             if (time < ps.time || time > ps.time + largeDelta)
             {
@@ -148,6 +156,10 @@ public class ParticleSystemControlMixer : PlayableBehaviour
                 // Edit mode playback
                 // Simulate without restarting nor fixed step.
                 ps.Simulate(time - ps.time, true, false, false);
+            }
+            else
+            {
+                // Delta time is too small; Do nothing.
             }
         }
     }

@@ -1,3 +1,6 @@
+// Timeline Particle Control Example
+// https://github.com/keijiro/TimelineParticleControl
+
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Playables;

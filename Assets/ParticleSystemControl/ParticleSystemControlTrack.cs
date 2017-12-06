@@ -1,6 +1,11 @@
+// Timeline Particle Control Example
+// https://github.com/keijiro/TimelineParticleControl
+
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
+
+// Track asset class for particle system control
 
 [TrackColor(0.4f, 0.7f, 0.6f)]
 [TrackClipType(typeof(ParticleSystemControl))]

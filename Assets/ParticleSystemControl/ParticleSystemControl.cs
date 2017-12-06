@@ -1,6 +1,11 @@
+// Timeline Particle Control Example
+// https://github.com/keijiro/TimelineParticleControl
+
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
+
+// Clip asset class for particle system control
 
 [System.Serializable]
 public class ParticleSystemControl : PlayableAsset, ITimelineClipAsset
