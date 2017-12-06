@@ -14,10 +14,8 @@ MonoBehaviour:
   m_NextId: 0
   m_Tracks:
   - {fileID: 114013668100837684}
-  - {fileID: 114070065589238270}
-  - {fileID: 114968897206772658}
-  - {fileID: 114410674046460596}
-  - {fileID: 114149950637333504}
+  - {fileID: 114068527049247808}
+  - {fileID: 114613357558341058}
   m_FixedDuration: 0
   m_EditorSettings:
     fps: 60
@@ -372,6 +370,26 @@ MonoBehaviour:
   m_ApplyOffsets: 0
   m_AvatarMask: {fileID: 0}
   m_ApplyAvatarMask: 1
+--- !u!114 &114068527049247808
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1544527758, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
+  m_Name: Group 1
+  m_EditorClassIdentifier: 
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_AnimClip: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children:
+  - {fileID: 114070065589238270}
+  - {fileID: 114968897206772658}
+  m_Clips: []
 --- !u!114 &114070065589238270
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -387,7 +405,7 @@ MonoBehaviour:
   m_Muted: 0
   m_CustomPlayableFullTypename: 
   m_AnimClip: {fileID: 0}
-  m_Parent: {fileID: 11400000}
+  m_Parent: {fileID: 114068527049247808}
   m_Children: []
   m_Clips:
   - m_Start: 0
@@ -480,13 +498,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 52c9620c3b874454e8b3c83016b09983, type: 3}
-  m_Name: Particle System Control Track1
+  m_Name: Particle System Control Track
   m_EditorClassIdentifier: 
   m_Locked: 0
   m_Muted: 0
   m_CustomPlayableFullTypename: 
   m_AnimClip: {fileID: 0}
-  m_Parent: {fileID: 11400000}
+  m_Parent: {fileID: 114613357558341058}
   m_Children: []
   m_Clips:
   - m_Start: 1
@@ -558,13 +576,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 46519060, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
-  m_Name: Activation Track (1)
+  m_Name: Activation Track
   m_EditorClassIdentifier: 
   m_Locked: 0
   m_Muted: 0
   m_CustomPlayableFullTypename: 
   m_AnimClip: {fileID: 0}
-  m_Parent: {fileID: 11400000}
+  m_Parent: {fileID: 114613357558341058}
   m_Children: []
   m_Clips:
   - m_Start: 1
@@ -643,6 +661,26 @@ MonoBehaviour:
   m_UseTrackMatchFields: 0
   m_MatchTargetFields: 63
   m_RemoveStartOffset: 0
+--- !u!114 &114613357558341058
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1544527758, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
+  m_Name: Group 2
+  m_EditorClassIdentifier: 
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_AnimClip: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children:
+  - {fileID: 114410674046460596}
+  - {fileID: 114149950637333504}
+  m_Clips: []
 --- !u!114 &114751942889560452
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -686,7 +724,7 @@ MonoBehaviour:
   m_Muted: 0
   m_CustomPlayableFullTypename: 
   m_AnimClip: {fileID: 0}
-  m_Parent: {fileID: 11400000}
+  m_Parent: {fileID: 114068527049247808}
   m_Children: []
   m_Clips:
   - m_Start: 0
