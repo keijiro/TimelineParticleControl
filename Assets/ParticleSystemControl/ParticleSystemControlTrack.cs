@@ -27,6 +27,8 @@ public class ParticleSystemControlTrack : TrackAsset
         driver.AddFromName<Transform>(ps.gameObject, "m_LocalPosition");
         driver.AddFromName<Transform>(ps.gameObject, "m_LocalRotation");
 
+        driver.AddFromName<ParticleSystem>(ps.gameObject, "looping");
+        driver.AddFromName<ParticleSystem>(ps.gameObject, "lengthInSec");
         driver.AddFromName<ParticleSystem>(ps.gameObject, "EmissionModule.rateOverTime.scalar");
         driver.AddFromName<ParticleSystem>(ps.gameObject, "EmissionModule.rateOverDistance.scalar");
     }

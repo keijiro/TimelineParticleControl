@@ -92,10 +92,22 @@ public class ParticleSystemControlMixer : PlayableBehaviour
 
         // Track time: Has to retrieve the root node time (the playhead of the
         // timeline) because the track/mixer playable only returns time = 0.
-        var time = (float)playable.GetGraph().GetRootPlayable(0).GetTime();
+        var rootPlayable = playable.GetGraph().GetRootPlayable(0);
+        var time = (float)rootPlayable.GetTime();
+
+        // Modify the main module settings.
+        if (!ps.isPlaying) // avoid warning
+        {
+            var totalLength = (float)rootPlayable.GetDuration();
+            var main = ps.main;
+            if (main.loop || main.duration < totalLength)
+            {
+                main.loop = false;
+                main.duration = totalLength;
+            }
+        }
 
         // Transform snapping
-
         var snapTo = snapTarget.Resolve(playable.GetGraph().GetResolver());
 
         if (snapTo != null)
@@ -105,7 +117,6 @@ public class ParticleSystemControlMixer : PlayableBehaviour
         }
 
         // Emission rates control
-
         var totalOverTime = 0.0f;
         var totalOverDist = 0.0f;
 
@@ -123,7 +134,6 @@ public class ParticleSystemControlMixer : PlayableBehaviour
         em.rateOverDistanceMultiplier = totalOverDist;
 
         // Time control
-
         if (Application.isPlaying)
         {
             // Play mode time control: Only resets the simulation when a large
