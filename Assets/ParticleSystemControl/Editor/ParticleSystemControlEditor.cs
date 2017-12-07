@@ -3,7 +3,6 @@
 
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Playables;
 
 [CustomEditor(typeof(ParticleSystemControl)), CanEditMultipleObjects]
 class ParticleSystemControlEditor : Editor

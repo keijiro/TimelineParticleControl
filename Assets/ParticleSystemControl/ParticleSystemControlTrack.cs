@@ -24,6 +24,9 @@ public class ParticleSystemControlTrack : TrackAsset
         var ps = director.GetGenericBinding(this) as ParticleSystem;
         if (ps == null) return;
 
+        driver.AddFromName<Transform>(ps.gameObject, "m_LocalPosition");
+        driver.AddFromName<Transform>(ps.gameObject, "m_LocalRotation");
+
         driver.AddFromName<ParticleSystem>(ps.gameObject, "EmissionModule.rateOverTime.scalar");
         driver.AddFromName<ParticleSystem>(ps.gameObject, "EmissionModule.rateOverDistance.scalar");
     }

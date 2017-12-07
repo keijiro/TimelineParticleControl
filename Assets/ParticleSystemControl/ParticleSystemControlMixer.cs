@@ -12,6 +12,7 @@ public class ParticleSystemControlMixer : PlayableBehaviour
 {
     #region Editable properties
 
+    public ExposedReference<Transform> snapTarget;
     public bool checkDeterminism = true;
 
     #endregion
@@ -92,6 +93,16 @@ public class ParticleSystemControlMixer : PlayableBehaviour
         // Track time: Has to retrieve the root node time (the playhead of the
         // timeline) because the track/mixer playable only returns time = 0.
         var time = (float)playable.GetGraph().GetRootPlayable(0).GetTime();
+
+        // Transform snapping
+
+        var snapTo = snapTarget.Resolve(playable.GetGraph().GetResolver());
+
+        if (snapTo != null)
+        {
+            ps.transform.position = snapTo.position;
+            ps.transform.rotation = snapTo.rotation;
+        }
 
         // Emission rates control
 
