@@ -4,8 +4,8 @@
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(ParticleSystemControl)), CanEditMultipleObjects]
-class ParticleSystemControlEditor : Editor
+[CustomEditor(typeof(ParticleSystemControlClip)), CanEditMultipleObjects]
+class ParticleSystemControlClipEditor : Editor
 {
     SerializedProperty _rateOverTime;
     SerializedProperty _rateOverDistance;

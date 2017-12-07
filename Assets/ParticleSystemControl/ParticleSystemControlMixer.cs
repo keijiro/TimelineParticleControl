@@ -19,33 +19,8 @@ public class ParticleSystemControlMixer : PlayableBehaviour
 
     #region Private variables and methods
 
+    Transform _snapTarget;
     bool _needRestart;
-    bool _warned;
-
-    static string GetTransformFullPath(Transform tr)
-    {
-        var path = tr.name;
-
-        while (tr.parent != null)
-        {
-            tr = tr.parent;
-            path = tr.name + "/" + path;
-        }
-
-        return path;
-    }
-
-    void CheckDeterminism(ParticleSystem ps)
-    {
-        if (!_warned && ps.useAutoRandomSeed)
-        {
-            Debug.LogWarning(
-                "Auto random seed is enabled in " +
-                "'" + GetTransformFullPath(ps.transform) + "'. " +
-                "Turn it off to get deterministic behavior in the timeline.");
-            _warned = true;
-        }
-    }
 
     static void ResetParticleSystem(ParticleSystem ps, float time)
     {
@@ -74,13 +49,14 @@ public class ParticleSystemControlMixer : PlayableBehaviour
 
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
     {
-        var ps = playerData as ParticleSystem;
-
         // Do nothing if there is norhing bound.
+        var ps = playerData as ParticleSystem;
         if (ps == null) return;
 
-        // Validate the settings.
+        // Validate the particle system settings.
+    #if UNITY_EDITOR
         CheckDeterminism(ps);
+    #endif
 
         // Do nothing if the target game object is not active.
         // Will do full restart when being activated next time.
@@ -90,30 +66,35 @@ public class ParticleSystemControlMixer : PlayableBehaviour
             return;
         }
 
-        // Track time: Has to retrieve the root node time (the playhead of the
-        // timeline) because the track/mixer playable only returns time = 0.
+        // Track time: It has to retrieve the root node time (the playhead of
+        // the timeline) because the track/mixer playable only returns zero.
         var rootPlayable = playable.GetGraph().GetRootPlayable(0);
         var time = (float)rootPlayable.GetTime();
 
-        // Modify the main module settings.
-        if (!ps.isPlaying) // avoid warning
+        // Main module settings modification
+        // Make the effect duration longer than the timeline.
+        if (!ps.isPlaying) // Avoid warning "don't change while playing".
         {
-            var totalLength = (float)rootPlayable.GetDuration();
-            var main = ps.main;
-            if (main.loop || main.duration < totalLength)
-            {
-                main.loop = false;
-                main.duration = totalLength;
-            }
+            var mod = ps.main;
+            var duration = (float)rootPlayable.GetDuration();
+            if (mod.duration < duration) mod.duration = duration;
         }
 
         // Transform snapping
-        var snapTo = snapTarget.Resolve(playable.GetGraph().GetResolver());
-
-        if (snapTo != null)
+        // In Editor, resolve the reference every frame because it can be
+        // changed even while playing.
+    #if !UNITY_EDITOR
+        if (_snapTarget == null)
+    #endif
         {
-            ps.transform.position = snapTo.position;
-            ps.transform.rotation = snapTo.rotation;
+            _snapTarget = snapTarget.Resolve(playable.GetGraph().GetResolver());
+            if (_snapTarget == null) _snapTarget = ps.transform;
+        }
+
+        if (_snapTarget != ps.transform)
+        {
+            ps.transform.position = _snapTarget.position;
+            ps.transform.rotation = _snapTarget.rotation;
         }
 
         // Emission rates control
@@ -184,6 +165,41 @@ public class ParticleSystemControlMixer : PlayableBehaviour
             }
         }
     }
+
+    #endregion
+
+    #region Editor functions
+
+    #if UNITY_EDITOR
+
+    bool _warned;
+
+    static string GetTransformFullPath(Transform tr)
+    {
+        var path = tr.name;
+
+        while (tr.parent != null)
+        {
+            tr = tr.parent;
+            path = tr.name + "/" + path;
+        }
+
+        return path;
+    }
+
+    void CheckDeterminism(ParticleSystem ps)
+    {
+        if (!_warned && ps.useAutoRandomSeed)
+        {
+            Debug.LogWarning(
+                "Auto random seed is enabled in " +
+                "'" + GetTransformFullPath(ps.transform) + "'. " +
+                "Turn it off to get deterministic behavior in the timeline.");
+            _warned = true;
+        }
+    }
+
+    #endif
 
     #endregion
 }

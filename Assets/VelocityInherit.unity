@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -209,7 +209,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 733908681}
-  - {fileID: 1920680483}
   m_Father: {fileID: 901113993}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -438,7 +437,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 438527753}
-  - {fileID: 1623167532}
   m_Father: {fileID: 901113993}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -453,7 +451,7 @@ GameObject:
   - component: {fileID: 1623167531}
   - component: {fileID: 1623167530}
   m_Layer: 0
-  m_Name: Particle System
+  m_Name: Particle System 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -520,7 +518,7 @@ ParticleSystem:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1623167529}
   serializedVersion: 5
-  lengthInSec: 5
+  lengthInSec: 0.1
   simulationSpeed: 1
   stopAction: 0
   looping: 1
@@ -3840,8 +3838,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 1074199299}
-  m_RootOrder: 1
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1910530956
 GameObject:
@@ -3888,7 +3886,7 @@ PlayableDirector:
   - key: {fileID: 0}
     value: {fileID: 1623167531}
   - key: {fileID: 114070065589238270, guid: 9edb254ef295b934db27b6339bfe2e5b, type: 2}
-    value: {fileID: 1074199298}
+    value: {fileID: 1623167529}
   - key: {fileID: 0}
     value: {fileID: 1623167531}
   - key: {fileID: 114968897206772658, guid: 9edb254ef295b934db27b6339bfe2e5b, type: 2}
@@ -3896,14 +3894,16 @@ PlayableDirector:
   - key: {fileID: 114149950637333504, guid: 9edb254ef295b934db27b6339bfe2e5b, type: 2}
     value: {fileID: 1920680485}
   - key: {fileID: 114410674046460596, guid: 9edb254ef295b934db27b6339bfe2e5b, type: 2}
-    value: {fileID: 702004188}
+    value: {fileID: 1920680482}
   m_ExposedReferences:
     m_References:
     - 31bed96fbb2de1245980e816f26d9cdf: {fileID: 1623167529}
     - 4bf409120bf9446489455f71e10c922e: {fileID: 1623167529}
     - cbe25d1d43638494cb98445757b557a1: {fileID: 1623167529}
     - fb5193c450b2eea4f96327e85e54cb58: {fileID: 901113992}
+    - f4a1527616ec96e4896bae8827441384: {fileID: 702004189}
     - aca0e77b76085214baa37ff4990502ca: {fileID: 1623167529}
+    - 0eac770a58cb71e4e93403245b256cf1: {fileID: 1074199299}
 --- !u!4 &1910530958
 Transform:
   m_ObjectHideFlags: 0
@@ -3928,7 +3928,7 @@ GameObject:
   - component: {fileID: 1920680485}
   - component: {fileID: 1920680484}
   m_Layer: 0
-  m_Name: Particle System
+  m_Name: Particle System 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3944,8 +3944,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 702004189}
-  m_RootOrder: 1
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!199 &1920680484
 ParticleSystemRenderer:
@@ -4008,7 +4008,7 @@ ParticleSystem:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1920680482}
   serializedVersion: 5
-  lengthInSec: 5
+  lengthInSec: 0.1
   simulationSpeed: 1
   stopAction: 0
   looping: 1

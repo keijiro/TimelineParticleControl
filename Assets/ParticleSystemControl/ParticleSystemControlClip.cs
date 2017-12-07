@@ -8,7 +8,7 @@ using UnityEngine.Timeline;
 // Clip asset class for particle system control
 
 [System.Serializable]
-public class ParticleSystemControl : PlayableAsset, ITimelineClipAsset
+public class ParticleSystemControlClip : PlayableAsset, ITimelineClipAsset
 {
     public ParticleSystemControlPlayable template = new ParticleSystemControlPlayable();
 

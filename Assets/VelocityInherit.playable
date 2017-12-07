@@ -566,6 +566,9 @@ MonoBehaviour:
     m_DisplayName: ParticleSystemControl
     m_Version: 1
   template:
+    snapTarget:
+      exposedName: f4a1527616ec96e4896bae8827441384
+      defaultValue: {fileID: 0}
     checkDeterminism: 1
 --- !u!114 &114410674046460596
 MonoBehaviour:
@@ -786,4 +789,7 @@ MonoBehaviour:
     m_DisplayName: ParticleSystemControl
     m_Version: 1
   template:
+    snapTarget:
+      exposedName: 0eac770a58cb71e4e93403245b256cf1
+      defaultValue: {fileID: 0}
     checkDeterminism: 1
