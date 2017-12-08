@@ -4,7 +4,8 @@ Timeline Particle System Control Example
 This is an example that shows how to control a particle system from a timeline
 track with using a custom track class.
 
-![gif](https://i.imgur.com/7DuEknn.gif)
+![gif](https://i.imgur.com/rJz6eWk.gif)
+![gif](https://i.imgur.com/G6LnNFn.gif)
 
 Controlling Particle System is Hard
 -----------------------------------
