@@ -99,6 +99,7 @@ MonoBehaviour:
     snapTarget:
       exposedName: ed955c2eb39a38448868e2e8c2660471
       defaultValue: {fileID: 0}
+    randomSeed: 363902632
 --- !u!114 &114688121504842918
 MonoBehaviour:
   m_ObjectHideFlags: 1

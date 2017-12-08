@@ -35,16 +35,19 @@ class ParticleSystemControlTrackEditor : Editor
 class ParticleSystemControlTrackEditor2 : Editor
 {
     SerializedProperty _snapTarget;
+    SerializedProperty _randomSeed;
 
     void OnEnable()
     {
         _snapTarget = serializedObject.FindProperty("template.snapTarget");
+        _randomSeed = serializedObject.FindProperty("template.randomSeed");
     }
 
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
         EditorGUILayout.PropertyField(_snapTarget);
+        EditorGUILayout.PropertyField(_randomSeed);
         serializedObject.ApplyModifiedProperties();
     }
 }

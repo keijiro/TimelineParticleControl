@@ -14,6 +14,12 @@ public class ParticleSystemControlTrack : TrackAsset
 {
     public ParticleSystemControlMixer template = new ParticleSystemControlMixer();
 
+    public override void OnEnable()
+    {
+        if (template.randomSeed == 0xffffffff)
+            template.randomSeed = (uint)Random.Range(0, 0x7fffffff);
+    }
+
     public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
     {
         // Retrieve the reference to the track-bound particle system via the
@@ -55,6 +61,7 @@ public class ParticleSystemControlTrack : TrackAsset
 
         driver.AddFromName<ParticleSystem>(go, "lengthInSec");
         driver.AddFromName<ParticleSystem>(go, "autoRandomSeed");
+        driver.AddFromName<ParticleSystem>(go, "randomSeed");
 
         driver.AddFromName<ParticleSystem>(go, "EmissionModule.rateOverTime.scalar");
         driver.AddFromName<ParticleSystem>(go, "EmissionModule.rateOverDistance.scalar");

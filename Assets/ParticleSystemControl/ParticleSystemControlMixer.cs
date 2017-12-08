@@ -13,6 +13,7 @@ public class ParticleSystemControlMixer : PlayableBehaviour
     #region Editable properties
 
     public ExposedReference<Transform> snapTarget;
+    public uint randomSeed = 0xffffffff;
 
     #endregion
 
@@ -32,6 +33,10 @@ public class ParticleSystemControlMixer : PlayableBehaviour
         // Disable automatic random seed to get deterministic results.
         if (particleSystem.useAutoRandomSeed)
             particleSystem.useAutoRandomSeed = false;
+
+        // Override the random seed number.
+        if (particleSystem.randomSeed != randomSeed)
+            particleSystem.randomSeed = randomSeed;
 
         // Retrieve the total duration of the track.
         var rootPlayable = playable.GetGraph().GetRootPlayable(0);
