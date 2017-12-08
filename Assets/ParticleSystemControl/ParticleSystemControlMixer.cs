@@ -13,7 +13,12 @@ public class ParticleSystemControlMixer : PlayableBehaviour
     #region Editable properties
 
     public ExposedReference<Transform> snapTarget;
-    public bool checkDeterminism = true;
+
+    #endregion
+
+    #region Runtime properties
+
+    public ParticleSystem particleSystem { get; set; }
 
     #endregion
 
@@ -22,7 +27,22 @@ public class ParticleSystemControlMixer : PlayableBehaviour
     Transform _snapTarget;
     bool _needRestart;
 
-    static void ResetParticleSystem(ParticleSystem ps, float time)
+    void PrepareParticleSystem(Playable playable)
+    {
+        // Disable automatic random seed to get deterministic results.
+        if (particleSystem.useAutoRandomSeed)
+            particleSystem.useAutoRandomSeed = false;
+
+        // Retrieve the total duration of the track.
+        var rootPlayable = playable.GetGraph().GetRootPlayable(0);
+        var duration = (float)rootPlayable.GetDuration();
+
+        // Particle system duration should be longer than the track duration.
+        var main = particleSystem.main;
+        if (main.duration < duration) main.duration = duration;
+    }
+
+    void ResetSimulation(float time)
     {
         const float maxSimTime = 2.0f / 3;
 
@@ -30,7 +50,7 @@ public class ParticleSystemControlMixer : PlayableBehaviour
         {
             // The target time is small enough: Use the default simulation
             // function (restart and simulate for the given time).
-            ps.Simulate(time);
+            particleSystem.Simulate(time);
         }
         else
         {
@@ -38,8 +58,8 @@ public class ParticleSystemControlMixer : PlayableBehaviour
             // simulation can be heavy in this case, so use fast-forward
             // (simulation with just a single step) then simulate for a small
             // period of time.
-            ps.Simulate(time - maxSimTime, true, true, false);
-            ps.Simulate(maxSimTime, true, false, true);
+            particleSystem.Simulate(time - maxSimTime, true, true, false);
+            particleSystem.Simulate(maxSimTime, true, false, true);
         }
     }
 
@@ -47,54 +67,52 @@ public class ParticleSystemControlMixer : PlayableBehaviour
 
     #region PlayableBehaviour overrides
 
+    public override void OnGraphStart(Playable playable)
+    {
+        if (particleSystem == null) return;
+
+        if (Application.isPlaying)
+        {
+            // Play mode: Prepare particle system only on graph start.
+            particleSystem.Stop();
+            PrepareParticleSystem(playable);
+        }
+    }
+
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
     {
-        // Do nothing if there is norhing bound.
-        var ps = playerData as ParticleSystem;
-        if (ps == null) return;
-
-        // Validate the particle system settings.
-    #if UNITY_EDITOR
-        CheckDeterminism(ps);
-    #endif
+        if (particleSystem == null) return;
 
         // Do nothing if the target game object is not active.
         // Will do full restart when being activated next time.
-        if (!ps.gameObject.activeInHierarchy)
+        if (!particleSystem.gameObject.activeInHierarchy)
         {
             _needRestart = true;
             return;
         }
 
-        // Track time: It has to retrieve the root node time (the playhead of
-        // the timeline) because the track/mixer playable only returns zero.
+        // Retrieve the track time (playhead position) from the root playable.
         var rootPlayable = playable.GetGraph().GetRootPlayable(0);
         var time = (float)rootPlayable.GetTime();
 
-        // Main module settings modification
-        // Make the effect duration longer than the timeline.
-        if (!ps.isPlaying) // Avoid warning "don't change while playing".
+        // Edit mode: Re-prepare the particle system every frame.
+        if (!Application.isPlaying && !particleSystem.isPlaying)
+            PrepareParticleSystem(playable);
+
+        // Resolve the snapping target reference.
+        // Play mode: Resolve once and keep the reference.
+        // Edit mode: Re-resolve every frame.
+        if (_snapTarget == null || !Application.isPlaying)
         {
-            var mod = ps.main;
-            var duration = (float)rootPlayable.GetDuration();
-            if (mod.duration < duration) mod.duration = duration;
+            _snapTarget = snapTarget.Resolve(playable.GetGraph().GetResolver());
+            if (_snapTarget == null) _snapTarget = particleSystem.transform;
         }
 
         // Transform snapping
-        // In Editor, resolve the reference every frame because it can be
-        // changed even while playing.
-    #if !UNITY_EDITOR
-        if (_snapTarget == null)
-    #endif
+        if (_snapTarget != particleSystem.transform)
         {
-            _snapTarget = snapTarget.Resolve(playable.GetGraph().GetResolver());
-            if (_snapTarget == null) _snapTarget = ps.transform;
-        }
-
-        if (_snapTarget != ps.transform)
-        {
-            ps.transform.position = _snapTarget.position;
-            ps.transform.rotation = _snapTarget.rotation;
+            particleSystem.transform.position = _snapTarget.position;
+            particleSystem.transform.rotation = _snapTarget.rotation;
         }
 
         // Emission rates control
@@ -110,7 +128,7 @@ public class ParticleSystemControlMixer : PlayableBehaviour
             totalOverDist += clip.rateOverDistance * w;
         }
 
-        var em = ps.emission;
+        var em = particleSystem.emission;
         em.rateOverTimeMultiplier = totalOverTime;
         em.rateOverDistanceMultiplier = totalOverDist;
 
@@ -121,10 +139,10 @@ public class ParticleSystemControlMixer : PlayableBehaviour
             // gap between the time variables was found.
             var maxDelta = Mathf.Max(1.0f / 30, Time.smoothDeltaTime * 2);
 
-            if (Mathf.Abs(time - ps.time) > maxDelta)
+            if (Mathf.Abs(time - particleSystem.time) > maxDelta)
             {
-                ResetParticleSystem(ps, time);
-                ps.Play();
+                ResetSimulation(time);
+                particleSystem.Play();
             }
         }
         else
@@ -137,27 +155,28 @@ public class ParticleSystemControlMixer : PlayableBehaviour
             // Do full restart on reactivation.
             if (_needRestart)
             {
-                ps.Play();
+                particleSystem.Play();
                 _needRestart = false;
             }
 
-            if (time < ps.time || time > ps.time + largeDelta)
+            if (time < particleSystem.time ||
+                time > particleSystem.time + largeDelta)
             {
                 // Backward seek or big leap
                 // Reset the simulation with the current playhead position.
-                ResetParticleSystem(ps, time);
+                ResetSimulation(time);
             }
-            else if (time > ps.time + smallDelta)
+            else if (time > particleSystem.time + smallDelta)
             {
                 // Fast-forward seek
                 // Simulate without restarting but with fixed steps.
-                ps.Simulate(time - ps.time, true, false, true);
+                particleSystem.Simulate(time - particleSystem.time, true, false, true);
             }
-            else if (time > ps.time + minDelta)
+            else if (time > particleSystem.time + minDelta)
             {
                 // Edit mode playback
                 // Simulate without restarting nor fixed step.
-                ps.Simulate(time - ps.time, true, false, false);
+                particleSystem.Simulate(time - particleSystem.time, true, false, false);
             }
             else
             {
@@ -165,41 +184,6 @@ public class ParticleSystemControlMixer : PlayableBehaviour
             }
         }
     }
-
-    #endregion
-
-    #region Editor functions
-
-    #if UNITY_EDITOR
-
-    bool _warned;
-
-    static string GetTransformFullPath(Transform tr)
-    {
-        var path = tr.name;
-
-        while (tr.parent != null)
-        {
-            tr = tr.parent;
-            path = tr.name + "/" + path;
-        }
-
-        return path;
-    }
-
-    void CheckDeterminism(ParticleSystem ps)
-    {
-        if (!_warned && ps.useAutoRandomSeed)
-        {
-            Debug.LogWarning(
-                "Auto random seed is enabled in " +
-                "'" + GetTransformFullPath(ps.transform) + "'. " +
-                "Turn it off to get deterministic behavior in the timeline.");
-            _warned = true;
-        }
-    }
-
-    #endif
 
     #endregion
 }

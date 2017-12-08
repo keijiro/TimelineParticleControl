@@ -35,20 +35,16 @@ class ParticleSystemControlTrackEditor : Editor
 class ParticleSystemControlTrackEditor2 : Editor
 {
     SerializedProperty _snapTarget;
-    SerializedProperty _checkDeterminism;
 
     void OnEnable()
     {
         _snapTarget = serializedObject.FindProperty("template.snapTarget");
-        _checkDeterminism = serializedObject.FindProperty("template.checkDeterminism");
     }
 
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
         EditorGUILayout.PropertyField(_snapTarget);
-        EditorGUILayout.Space();
-        EditorGUILayout.PropertyField(_checkDeterminism);
         serializedObject.ApplyModifiedProperties();
     }
 }
