@@ -19,6 +19,8 @@ it has some small limitations.
 - The [Inherit Velocity] module doesn't work with the Control Track.
 - It overrides the random seed number with the same value even if there are
   multiple particle systems under the hierarchy.
+- It uses the [fixed delta time] as a simulation interval. This is not ideal to
+  get smooth animation.
 
 The custom track class (`ParticleSystemControlTrack`) contained in this example
 provides the following functionalities.
@@ -29,9 +31,11 @@ provides the following functionalities.
 - Inherit Velocity module support.
 - Transform snapping support.
 - Random number override just happens with a single particle system.
+- Animation with system delta time.
 
 [Control Track]: https://docs.unity3d.com/ScriptReference/Timeline.ControlTrack.html
 [Inherit Velocity]: https://docs.unity3d.com/Manual/PartSysInheritVelocity.html
+[fixed delta time]: https://docs.unity3d.com/ScriptReference/Time-fixedDeltaTime.html
 
 License
 -------
