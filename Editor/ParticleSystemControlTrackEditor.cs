@@ -4,6 +4,8 @@
 using UnityEditor;
 using UnityEditor.Timeline;
 
+namespace Klak.Timeline {
+
 // We use a nested editor to enable context reference (it's needed to enable
 // exposed references).
 
@@ -50,4 +52,6 @@ class ParticleSystemControlTrackEditor2 : Editor
         EditorGUILayout.PropertyField(_randomSeed);
         serializedObject.ApplyModifiedProperties();
     }
+}
+
 }

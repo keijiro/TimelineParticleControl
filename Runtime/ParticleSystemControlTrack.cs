@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
+namespace Klak.Timeline {
+
 // Track asset class for particle system control
 
 [TrackColor(0.4f, 0.7f, 0.6f)]
@@ -66,4 +68,6 @@ public class ParticleSystemControlTrack : TrackAsset
         driver.AddFromName<ParticleSystem>(go, "EmissionModule.rateOverTime.scalar");
         driver.AddFromName<ParticleSystem>(go, "EmissionModule.rateOverDistance.scalar");
     }
+}
+
 }

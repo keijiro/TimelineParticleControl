@@ -1,0 +1,12 @@
+{
+    "name": "jp.keijiro.klak.timeline.particlesystemcontrol.Editor",
+    "references": [
+        "jp.keijiro.klak.timeline.particlesystemcontrol.Runtime"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
