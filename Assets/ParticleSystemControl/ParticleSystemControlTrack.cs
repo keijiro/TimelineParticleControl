@@ -14,7 +14,7 @@ public class ParticleSystemControlTrack : TrackAsset
 {
     public ParticleSystemControlMixer template = new ParticleSystemControlMixer();
 
-    public override void OnEnable()
+    public void OnEnable()
     {
         if (template.randomSeed == 0xffffffff)
             template.randomSeed = (uint)Random.Range(0, 0x7fffffff);
