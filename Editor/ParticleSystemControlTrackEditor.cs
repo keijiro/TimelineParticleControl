@@ -4,6 +4,8 @@
 using UnityEditor;
 using UnityEditor.Timeline;
 
+namespace Klak.Timeline {
+
 [CustomEditor(typeof(ParticleSystemControlTrack)), CanEditMultipleObjects]
 class ParticleSystemControlTrackEditor : Editor
 {
@@ -23,4 +25,6 @@ class ParticleSystemControlTrackEditor : Editor
         EditorGUILayout.PropertyField(_randomSeed);
         serializedObject.ApplyModifiedProperties();
     }
+}
+
 }
