@@ -2,7 +2,7 @@
     "name": "jp.keijiro.klak.timeline.particle-system-control",
     "displayName": "Klak Particle System Control",
     "version": "0.0.1",
-    "unity": "2018.1",
+    "unity": "2018.2",
     "description": "Custom timeline track that controls particle systems.",
     "dependencies": { }
 }
