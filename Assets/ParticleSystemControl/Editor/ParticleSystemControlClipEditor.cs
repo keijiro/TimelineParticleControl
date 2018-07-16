@@ -4,6 +4,8 @@
 using UnityEditor;
 using UnityEngine;
 
+namespace Klak.Timeline {
+
 [CustomEditor(typeof(ParticleSystemControlClip)), CanEditMultipleObjects]
 class ParticleSystemControlClipEditor : Editor
 {
@@ -34,4 +36,6 @@ class ParticleSystemControlClipEditor : Editor
 
         serializedObject.ApplyModifiedProperties();
     }
+}
+
 }

@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
+namespace Klak.Timeline {
+
 // Playable track class for particle system control
 
 [System.Serializable]
@@ -191,4 +193,6 @@ public class ParticleSystemControlMixer : PlayableBehaviour
     }
 
     #endregion
+}
+
 }
