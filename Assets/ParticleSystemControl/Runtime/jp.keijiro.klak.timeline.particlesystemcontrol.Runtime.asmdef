@@ -1,8 +1,15 @@
 {
     "name": "jp.keijiro.klak.timeline.particlesystemcontrol.Runtime",
-    "references": [],
-    "optionalUnityReferences": [],
+    "references": [
+        "GUID:f06555f75b070af458a003d92f9efb00"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
