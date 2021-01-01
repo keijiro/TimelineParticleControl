@@ -191,6 +191,14 @@ public class ParticleSystemControlMixer : PlayableBehaviour
             }
         }
     }
+    
+    public override void OnGraphStop(Playable playable)
+    {
+        if (particleSystem == null) return;
+
+        if (Application.isPlaying)
+            particleSystem.Stop();
+    }
 
     #endregion
 }
