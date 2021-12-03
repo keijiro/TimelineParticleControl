@@ -33,7 +33,7 @@ provides the following functionalities.
 - Random number override just happens with a single particle system.
 - Animation with system delta time.
 
-[Control Track]: https://docs.unity3d.com/ScriptReference/Timeline.ControlTrack.html
+[Control Track]: https://docs.unity3d.com/Packages/com.unity.timeline@1.7/api/UnityEngine.Timeline.ControlTrack.html
 [Inherit Velocity]: https://docs.unity3d.com/Manual/PartSysInheritVelocity.html
 [fixed delta time]: https://docs.unity3d.com/ScriptReference/Time-fixedDeltaTime.html
 
